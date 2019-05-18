@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>IN - TD7</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script src="js/three.min.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/GLTFLoader.js"></script>
+		<script src="js/OBJLoader.js"></script>
+		<script src="js/MTLLoader.js"></script>
+
+	</head>
+	<body>
+		<center>
+		<div class="navbar">
+		  <div class="dropdown">
+		    <button class="dropbtn">Modèle <i class="fa fa-caret-down"></i> </button>
+		    <div class="dropdown-content">
+		      <a href="#">Lamborghini Aventador</a>
+		      <a href="#">Nissan 370z</a>
+		      <a href="#">Bugatti Chiron</a>
+		    </div>
+		  </div>
+		  <audio controls src="audio/lamborghini_aventador.mp3"></audio>
+		</div>
+		<div>
+			<td>
+				<i>R:</i> <input type="range" id="sliderR" min="0" max="1" step ="0.01" value="0" />
+				<b id="valeurR">0</b></br>
+				
+				<i>G:</i> <input type="range" id="sliderG" min="0" max="1" step ="0.01" value="0" />
+				<b id="valeurG">0</b></br>
+				
+				<i>B:</i> <input type="range" id="sliderB" min="0" max="1" step ="0.01" value="0" />
+				<b id="valeurB">0</b></br>
+			</td>	
+		</div> 		
+		<div id="container"></div>
+
+
+	</body>
+</html>
+
+<script>
+	let threeLargeur = screen.width-33;
+	let threeHauteur = 600;
+
+	let scene = new THREE.Scene();
+
+	let mtlloader = new THREE.MTLLoader();
+
+/*	mtlloader.load("lamborghini-aventador.mtl", 
+		function( materials)
+		{
+			materials.preload();
+			let chargerOBJ = new THREE.OBJLoader();
+			chargerOBJ.setMaterials(materials)
+			chargerOBJ.load( 'lamborghini-aventador.obj', function ( object ) 
+			{
+				scene.add( object );
+		} );
+
+		});*/
+	mtlloader.load("avent.mtl", 
+		function( materials)
+		{
+			materials.preload();
+			let chargerOBJ = new THREE.OBJLoader();
+			chargerOBJ.setMaterials(materials)
+			chargerOBJ.load( 'avent.obj', function ( object ) 
+			{
+				avent = object;
+				scene.add( avent );
+		} );
+
+		});
+
+	
+
+	// Etape 2 : ajouter une cam´era
+	let camera = new THREE.PerspectiveCamera( 70, threeLargeur/threeHauteur, 0.1, 1000 );
+	camera.position.set(0,2,6);
+
+	let renderer = new THREE.WebGLRenderer();
+	renderer.setSize(threeLargeur, threeHauteur);
+
+	document.body.appendChild(renderer.domElement);
+
+	controls = new THREE.OrbitControls(camera, renderer.domElement)
+
+	let geometry = new THREE.CubeGeometry( 1000,1000,1000 );
+
+
+	let cubeMaterials = 
+	[
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/right.jpg'), side: THREE.DoubleSide} ),
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/left.jpg'), side: THREE.DoubleSide} ),
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/top.jpg'), side: THREE.DoubleSide} ),
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/down.jpgg'), side: THREE.DoubleSide} ),
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/back.jpg'), side: THREE.DoubleSide} ),
+		new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('ocean/front.jpg'), side: THREE.DoubleSide} )
+	];
+
+	// Etape 1 : ajouter des objets
+	let material = new THREE.MeshFaceMaterial( cubeMaterials );
+
+	cube = new THREE.Mesh( geometry, material );
+
+	scene.add(cube);
+
+	let planeGeometry =  new THREE.PlaneGeometry( 10,10,10 );
+	let planeMaterial = new THREE.MeshBasicMaterial({color: 'grey', side: THREE.DoubleSide});
+
+	plateforme = new THREE.Mesh( planeGeometry, planeMaterial);
+	scene.add(plateforme)
+
+	plateforme.rotation.x = 1.57;
+
+	// Etape 3 : ajouter une lumi`ere ambiante
+	let lumiereAmbiente = new THREE.AmbientLight( 0xFFFFFF, 1);
+	scene.add( lumiereAmbiente );
+
+	// Faire le rendu de la sc`ene `a partir de votre cam´era
+	// pour contr^oler la sourislet 
+
+	function animer()
+	{
+		requestAnimationFrame( animer );
+		cube.rotation.y += 0.0008;
+		renderer.render( scene, camera );
+		controls.update();
+	}
+
+	animer();
+
+	document.addEventListener("keydown", toucheClavier);
+	function toucheClavier(event) {
+		var touche = event.which;
+		if (touche == 37) {
+			cube.position.x -= 0.1;
+		}
+		else if (touche == 39)
+		{
+			cube.position.x += 0.1;
+		}
+		else if (touche == 38)
+		{
+			cube.position.y += 0.1;
+		}
+		else if (touche == 40)
+		{
+			cube.position.y -= 0.1;
+		}
+	};
+	let lumierePonctuelle = new THREE.PointLight( 'rgb(255,255,255)', 1, 100 );
+	lumierePonctuelle.position.set( 0, 7, 0 );
+	lumierePonctuelle.intensity = 0.5;
+	scene.add( lumierePonctuelle );
+
+	let zPos = document.getElementById("zPos");
+	let zPosLegende = document.getElementById("zPosLegende");
+	zPos.addEventListener("input", changerZPos);
+	function changerZPos(event)
+	{
+		zPosLegende.innerHTML = event.target.value;
+		cube.position.z = event.target.value;
+	}
+
+	// ajouter une lumi`ere ponctuelle
+
+
+	// instantier un objet pour charger des fichiers OBJ
+
+
+</script>
+
+	<!-- var i;
+	for (i = 300; i < 387; i++) {
+	  avent.children[i].material.color = { r: 0, g: 255, b: 255 }
+	} -->
