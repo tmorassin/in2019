@@ -15,29 +15,30 @@
 		<center>
 		<div class="navbar">
 		  <div class="dropdown">
-		    <button class="dropbtn">Modèle <i class="fa fa-caret-down"></i> </button>
+		    <button class="dropbtn">Roues <i class="fa fa-caret-down"></i> </button>
+		    <button id="body">Corps<i class="fa fa-caret-down"></i> </button>
+		    <button id="glass">Vitres<i class="fa fa-caret-down"></i> </button>
 		    <div class="dropdown-content">
-		      <a href="#">Lamborghini Aventador</a>
-		      <a href="#">Nissan 370z</a>
-		      <a href="#">Bugatti Chiron</a>
+		      <a href="#" id="brake_disk">Disques de frein</a>
+		      <a href="#" id="brake_caliper">Étriers</a>
+		      <a href="#" id="rims">Jantes</a>
 		    </div>
 		  </div>
 		  <audio controls src="audio/lamborghini_aventador.mp3"></audio>
 		</div>
 		<div>
 			<td>
-				<i>R:</i> <input type="range" id="sliderR" min="0" max="1" step ="0.01" value="0" />
+				<i>R:</i> <input type="range" id="sliderR" min="0" max="0.5" step ="0.001" value="0" />
 				<b id="valeurR">0</b></br>
 				
-				<i>G:</i> <input type="range" id="sliderG" min="0" max="1" step ="0.01" value="0" />
+				<i>G:</i> <input type="range" id="sliderG" min="0" max="0.5" step ="0.001" value="0" />
 				<b id="valeurG">0</b></br>
 				
-				<i>B:</i> <input type="range" id="sliderB" min="0" max="1" step ="0.01" value="0" />
+				<i>B:</i> <input type="range" id="sliderB" min="0" max="0.5" step ="0.001" value="0" />
 				<b id="valeurB">0</b></br>
 			</td>	
 		</div> 		
 		<div id="container"></div>
-
 
 	</body>
 </html>
@@ -65,6 +66,7 @@
 	mtlloader.load("avent.mtl", 
 		function( materials)
 		{
+			aventmtl=materials;
 			materials.preload();
 			let chargerOBJ = new THREE.OBJLoader();
 			chargerOBJ.setMaterials(materials)
@@ -155,8 +157,88 @@
 	};
 	let lumierePonctuelle = new THREE.PointLight( 'rgb(255,255,255)', 1, 100 );
 	lumierePonctuelle.position.set( 0, 7, 0 );
-	lumierePonctuelle.intensity = 0.5;
+	lumierePonctuelle.intensity = 1 ;
 	scene.add( lumierePonctuelle );
+
+/*AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*/
+
+	let sliderR = document.getElementById("sliderR");
+	sliderR.addEventListener("input", changerR);
+	
+	let sliderG = document.getElementById("sliderG");
+	sliderG.addEventListener("input", changerG);
+	
+	let sliderB = document.getElementById("sliderB");
+	sliderB.addEventListener("input", changerB);
+	
+	function changerR(event)
+	{
+		let valeurR = document.getElementById("valeurR");
+		valeurR.innerHTML = event.target.value;
+		mettreAJourCouleur();
+	}
+	function changerG(event)
+	{
+		let valeurG = document.getElementById("valeurG");
+		valeurG.innerHTML = event.target.value;
+		mettreAJourCouleur();
+	}
+	function changerB(event)
+	{
+		let valeurB = document.getElementById("valeurB");
+		valeurB.innerHTML = event.target.value;
+		mettreAJourCouleur();
+	}
+	function mettreAJourCouleur()
+	{
+		let sliderR = document.getElementById("sliderR");
+		let sliderG = document.getElementById("sliderG");
+		let sliderB = document.getElementById("sliderB");
+		let sliderA = document.getElementById("sliderA");
+
+		let brake_disk = document.getElementById("brake_disk");
+		brake_disk.addEventListener("click", changerbrake_disk)
+
+		let brake_caliper = document.getElementById("brake_caliper")
+		brake_caliper.addEventListener("click", changerbrake_caliper)
+
+		let body = document.getElementById("body")
+		body.addEventListener("click", changerbody)
+
+		let rims = document.getElementById("rims")
+		rims.addEventListener("click", changerrims)
+
+		let glass = document.getElementById("glass")
+		glass.addEventListener("click", changerglass)
+
+
+		function changerbrake_disk(event){
+			aventmtl.materials.BREMSE1.color = { r: sliderR.value, g: sliderG.value, b: sliderB.value }
+			scene.add( materials );
+		}
+
+		function changerbrake_caliper(event){
+			aventmtl.materials.BREMSE2.color = { r: sliderR.value, g: sliderG.value, b: sliderB.value }
+			scene.add( materials );
+		}	
+
+		function changerbody(event){
+			aventmtl.materials.Body.color = { r: sliderR.value, g: sliderG.value, b: sliderB.value }
+			scene.add( materials );
+		}
+
+		function changerrims(event){
+			aventmtl.materials.FELGE1.color = { r: sliderR.value, g: sliderG.value, b: sliderB.value }
+			scene.add( materials );
+		}
+
+		function changerglass(event){
+			aventmtl.materials.Glass.color = { r: sliderR.value, g: sliderG.value, b: sliderB.value }
+			scene.add (materials);
+		}
+
+	}
+
 
 	let zPos = document.getElementById("zPos");
 	let zPosLegende = document.getElementById("zPosLegende");
